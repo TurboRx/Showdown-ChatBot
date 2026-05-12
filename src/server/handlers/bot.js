@@ -40,10 +40,15 @@ function getBotStatusData(App, target, config) {
 	const data = {
 		con: '<font color="red"><strong>NOT CONNECTED</strong></font>',
 		ctime: cTime,
-		nick: (App.bot.getBotNick().substr(1) || "-"),
+		nick: "-",
 		rooms: [],
 		battles: [],
 	};
+
+	const botNick = App.bot.getBotNick();
+	if (botNick && botNick.length > 1) {
+		data.nick = botNick.substr(1);
+	}
 
 	if (App.bot.status.connected) {
 		data.con = '<font color="green"><strong>CONNECTED</strong></font>';

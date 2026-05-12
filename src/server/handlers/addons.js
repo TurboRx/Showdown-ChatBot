@@ -87,7 +87,7 @@ function newAddonHandler(App, context, target) {
 			}
 
 			if (!error) {
-				App.logServerAction(context.user.id, `Add-on installed for ${target.id}: ${file}`);
+				App.logServerAction(context.user.id, `Add-on installed for ${target.id}: ${JSON.stringify(file)}`);
 				context.response.writeHead(302, { 'Location': target.addonsPath });
 				context.response.end();
 				return;
@@ -151,7 +151,7 @@ function editAddonHandler(App, context, parts, target) {
 
 			if (!error) {
 				addonContent = content;
-				App.logServerAction(context.user.id, `Add-on updated for ${target.id}: ${addon}`);
+				App.logServerAction(context.user.id, `Add-on updated for ${target.id}: ${JSON.stringify(addon)}`);
 				ok = target.current ? "Add-on re-installed successfully" : "Add-on saved successfully";
 			}
 		}
@@ -193,7 +193,7 @@ function handleManaged(App, context, parts, target) {
 			} else {
 				ManagerUtils.removeManagedAddon(target, addon);
 			}
-			App.logServerAction(context.user.id, `Add-on deleted for ${target.id}: ${addon}`);
+			App.logServerAction(context.user.id, `Add-on deleted for ${target.id}: ${JSON.stringify(addon)}`);
 			ok = "Addon " + Text.escapeHTML(addon) + " deleted successfully";
 		} else {
 			error = "Invalid add-on";

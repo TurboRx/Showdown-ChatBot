@@ -52,7 +52,7 @@ function getBotRootDir(App, botId) {
 }
 
 function sanitizeBotId(botId) {
-	return Text.toAddOnId(botId || '').substr(0, 32);
+	return Text.toAddOnId(botId || '').slice(0, 32);
 }
 
 function ensureConfigDefaults(config) {
@@ -255,6 +255,7 @@ function createManagedBot(App, botId) {
 	const db = new CryptoDataBase(configFile, key);
 	db.set(config);
 	db.write();
+	return botId;
 }
 
 function validateAddonFile(file) {
@@ -267,7 +268,8 @@ function addonAbsPath(target, file) {
 	}
 
 	const absPath = Path.resolve(target.confDir, file);
-	if (!absPath.startsWith(target.addonsDir + Path.sep) && absPath !== Path.resolve(target.addonsDir, Path.basename(absPath))) {
+	const relPath = Path.relative(target.addonsDir, absPath);
+	if (relPath.startsWith('..') || Path.isAbsolute(relPath)) {
 		throw new Error('Invalid add-on');
 	}
 	return absPath;

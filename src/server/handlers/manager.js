@@ -66,9 +66,9 @@ exports.setup = function (App) {
 
 		if (context.post.createbot) {
 			try {
-				ManagerUtils.createManagedBot(App, botId);
-				App.logServerAction(context.user.id, 'Created bot profile: ' + ManagerUtils.sanitizeBotId(botId));
-				ok = 'Bot "' + Text.escapeHTML(ManagerUtils.sanitizeBotId(botId)) + '" created successfully.';
+				const createdBotId = ManagerUtils.createManagedBot(App, botId);
+				App.logServerAction(context.user.id, 'Created bot profile: ' + createdBotId);
+				ok = 'Bot "' + Text.escapeHTML(createdBotId) + '" created successfully.';
 				botId = '';
 			} catch (err) {
 				error = err.message;
