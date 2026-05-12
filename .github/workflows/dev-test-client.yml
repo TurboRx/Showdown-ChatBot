@@ -1,0 +1,35 @@
+name: Dev Test Client
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  launch-test-client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.x'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Run lint/tests
+        run: npm test
+
+      - name: Publish run summary
+        run: |
+          echo "Dev test workflow completed successfully." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep workflow alive for 30 minutes
+        run: sleep 1800
