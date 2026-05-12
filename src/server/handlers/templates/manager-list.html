@@ -1,0 +1,12 @@
+<h2>Bot Manager</h2>
+<p>Manage the original bot and any extra bot profiles from one place.</p>
+<h3>Create New Bot</h3>
+<form method="post" action="">
+	<p><strong>Bot ID:</strong>&nbsp;<input name="botid" type="text" style="width: 100%; max-width: 30ch;" maxlength="32" value="${BOTID}" /></p>
+	<p><small>New bots start with default settings and copy the current bot login credentials.</small></p>
+	<p><input type="submit" name="createbot" value="Create Bot" /></p>
+</form>
+<p><span class="${REQUEST_RESULT}">${REQUEST_MSG}</span></p>
+<hr />
+<h3>Available Bots</h3>
+${BOTS}

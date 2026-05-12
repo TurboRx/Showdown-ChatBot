@@ -21,7 +21,7 @@
 
 		var oldConnectionTime = parseInt(document.getElementById('bot-conntime').value);
 
-		req = $.get('/bot/?getbotstatus=' + Date.now(), function (data) {
+		req = $.get('${BASE_PATH}?getbotstatus=' + Date.now(), function (data) {
 			req = null;
 			try {
 				data = JSON.parse(data);
@@ -58,7 +58,7 @@
 		}
 		if (req) { try { req.abort() } catch (err) { } req = null; }
 		document.getElementById("resultdiv").innerHTML = "<i>Getting server configuration for " + escapeHtml(server) + "...</i>";
-		req = $.get('/bot/?server=' + encodeURI(server) + "&t=" + Date.now(), function (data) {
+		req = $.get('${BASE_PATH}?server=' + encodeURI(server) + "&t=" + Date.now(), function (data) {
 			try {
 				data = JSON.parse(data);
 
@@ -127,8 +127,10 @@
 </table>
 <p><button onclick="updateBotStatus(true);">Refresh</button>&nbsp;<span id="refresh-progress">&nbsp;</span></p>
 <p><button onclick="showRestartConfirm();">Restart Bot</button><span id="confirm-restart">&nbsp;</span></p>
+${RESTART_BUTTON}
 ${STOP_BUTTON}
 <hr />
+${PAGE_NOTE}
 <h3>Bot Configuration</h3>
 <form method="post" action="">
 	<table border="0">
