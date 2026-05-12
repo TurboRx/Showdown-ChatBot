@@ -33,3 +33,6 @@ jobs:
       - name: Publish run summary
         run: |
           echo "Dev test workflow completed successfully." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep workflow alive for 30 minutes
+        run: sleep 1800
