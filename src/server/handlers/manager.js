@@ -20,7 +20,7 @@ exports.setup = function (App) {
 				context.endWith403();
 				return;
 			}
-			return renderManagerList(context);
+			return handleManagerList(context);
 		}
 
 		const target = ManagerUtils.resolveManagedBot(App, parts.shift());
@@ -59,22 +59,20 @@ exports.setup = function (App) {
 		}
 	});
 
-	function renderManagerList(context) {
-		let ok = null;
-		let error = null;
-		let botId = context.post.botid || '';
-
+	function handleManagerList(context) {
 		if (context.post.createbot) {
-			try {
-				const createdBotId = ManagerUtils.createManagedBot(App, botId);
+			return ManagerUtils.createManagedBot(App, context.post.botid || '').then(createdBotId => {
 				App.logServerAction(context.user.id, 'Created bot profile: ' + createdBotId);
-				ok = 'Bot "' + Text.escapeHTML(createdBotId) + '" created successfully.';
-				botId = '';
-			} catch (err) {
-				error = err.message;
-			}
+				renderManagerList(context, 'Bot "' + Text.escapeHTML(createdBotId) + '" created successfully.', null, '');
+			}).catch(err => {
+				renderManagerList(context, null, err.message, context.post.botid || '');
+			});
 		}
 
+		return renderManagerList(context, null, null, context.post.botid || '');
+	}
+
+	function renderManagerList(context, ok, error, botId) {
 		let botsHtml = '';
 		for (let bot of ManagerUtils.listBots(App)) {
 			const currentTag = bot.current ? '&nbsp;<span class="ok-msg">(current)</span>' : '';

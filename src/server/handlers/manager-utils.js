@@ -171,11 +171,13 @@ function listBots(App) {
 			const absPath = Path.resolve(instancesDir, file);
 			if (!FileSystem.statSync(absPath).isDirectory()) continue;
 			const id = sanitizeBotId(file);
-			if (!id || id === MAIN_BOT_ID) continue;
+			if (!id || id === MAIN_BOT_ID || file !== id) continue;
+			const paths = resolveManagedBot(App, id);
+			if (!paths) continue;
 			bots.push({
 				id: id,
 				current: currentBotId === id,
-				paths: resolveManagedBot(App, id),
+				paths: paths,
 			});
 		}
 	}

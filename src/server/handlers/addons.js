@@ -35,7 +35,7 @@ function renderAddonsList(App, context, target, ok, error) {
 	const addons = getAddonsMap(App, target);
 	const htmlVars = Object.create(null);
 	htmlVars.addons_list = '';
-	htmlVars.base_url = target.current ? '/addons/' : target.addonsPath;
+	htmlVars.base_url = target.addonsPath;
 	htmlVars.page_note = target.current ? '' :
 		'<p><span class="ok-msg">These add-ons belong only to bot "' + Text.escapeHTML(target.id) + '".</span></p>';
 
@@ -97,7 +97,7 @@ function newAddonHandler(App, context, target) {
 
 	context.endWithWebPage(addingTemplate.make({
 		content: Text.escapeHTML(context.post.content || ''),
-		base_url: target.current ? '/addons/' : target.addonsPath,
+		base_url: target.addonsPath,
 		request_result: (ok ? 'ok-msg' : (error ? 'error-msg' : '')),
 		request_msg: (ok ? ok : (error || "")),
 	}), {
@@ -160,7 +160,7 @@ function editAddonHandler(App, context, parts, target) {
 	context.endWithWebPage(editTemplate.make({
 		content: Text.escapeHTML(addonContent),
 		file: Text.escapeHTML(addon),
-		base_url: target.current ? '/addons/' : target.addonsPath,
+		base_url: target.addonsPath,
 		request_result: (ok ? 'ok-msg' : (error ? 'error-msg' : '')),
 		request_msg: (ok ? ok : (error || "")),
 	}), {

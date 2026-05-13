@@ -84,7 +84,7 @@ function renderBotPage(App, context, target, config, ok, error) {
 	htmlVars.serverid = Text.escapeHTML(config.bot.serverid);
 	htmlVars.request_result = (ok ? 'ok-msg' : (error ? 'error-msg' : ''));
 	htmlVars.request_msg = (ok ? ok : (error || ""));
-	htmlVars.base_path = target.current ? '/bot/' : target.botPath;
+	htmlVars.base_path = target.botPath;
 	htmlVars.restart_button = target.current ? '<p><button onclick="showRestartConfirm();">Restart Bot</button><span id="confirm-restart">&nbsp;</span></p>' : '';
 	htmlVars.stop_button = (target.current && App.status !== 'stopped') ? '<p><button onclick="showStopConfirm();">Stop Bot</button><span id="confirm-stop">&nbsp;</span></p>' : '';
 	htmlVars.page_note = target.current ? '' : '<p><span class="ok-msg">This bot profile is not running in this process. Changes will apply the next time it starts.</span></p>';
