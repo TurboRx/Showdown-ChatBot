@@ -517,7 +517,7 @@ select:disabled {
 	.header tr,
 	.header td {
 		display: block;
-		width: 100% !important;
+		width: 100%;
 		box-sizing: border-box;
 		text-align: center;
 	}
@@ -578,16 +578,15 @@ select:disabled {
 
 	.page-content table td {
 		display: block;
-		width: 100% !important;
+		width: 100%;
 		padding: 4px 0;
-		white-space: normal !important;
+		white-space: normal;
 	}
 
 	.page-content input:not([type=submit]),
 	.page-content textarea,
 	.page-content select {
-		width: 100% !important;
-		max-width: 100% !important;
+		width: 100%;
 	}
 
 	.page-content button,
