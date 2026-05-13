@@ -23,16 +23,27 @@ function ensureObject(value) {
 }
 
 function getInstancesDir(App) {
-	return Path.resolve(App.appDir, 'instances');
+	return Path.resolve(getMainRootDir(App), 'instances');
 }
 
 function getCurrentRootDir(App) {
 	return Path.resolve(App.confDir, '..');
 }
 
+function getMainRootDir(App) {
+	const currentRoot = getCurrentRootDir(App);
+	const parentDir = Path.dirname(currentRoot);
+
+	if (Path.basename(parentDir) === 'instances') {
+		return Path.dirname(parentDir);
+	}
+
+	return currentRoot;
+}
+
 function getCurrentBotId(App) {
 	const currentRoot = getCurrentRootDir(App);
-	if (currentRoot === App.appDir) {
+	if (currentRoot === getMainRootDir(App)) {
 		return MAIN_BOT_ID;
 	}
 
@@ -46,7 +57,7 @@ function getCurrentBotId(App) {
 
 function getBotRootDir(App, botId) {
 	if (botId === MAIN_BOT_ID) {
-		return App.appDir;
+		return getMainRootDir(App);
 	}
 	return Path.resolve(getInstancesDir(App), botId);
 }
