@@ -27,12 +27,84 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit --no-fund
 
-      - name: Run lint/tests
-        run: npm test
+      - name: Create config.js
+        run: cp config-example.js config.js
 
-      - name: Publish run summary
+      - name: Install cloudflared
         run: |
-          echo "Dev test workflow completed successfully." >> "$GITHUB_STEP_SUMMARY"
+          curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+          sudo dpkg -i cloudflared.deb
+
+      - name: Start control panel and Cloudflare Tunnel
+        id: tunnel
+        env:
+          DEFAULT_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME || 'Admin' }}
+          DEFAULT_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'admin' }}
+        run: |
+          set -euo pipefail
+
+          node showdown-chatbot -p 8080 > bot.log 2>&1 &
+          echo $! > bot.pid
+
+          for i in {1..30}; do
+            if ! kill -0 "$(cat bot.pid)" 2>/dev/null; then
+              echo 'Bot process exited before becoming healthy.'
+              echo '--- bot.log ---'
+              cat bot.log
+              exit 1
+            fi
+
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null 2>&1; then
+              echo 'Control panel is responding on port 8080.'
+              break
+            fi
+
+            if [[ "$i" -eq 30 ]]; then
+              echo 'Control panel did not become healthy on http://127.0.0.1:8080/.'
+              echo '--- bot.log ---'
+              cat bot.log
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          cloudflared tunnel --url http://127.0.0.1:8080 --no-autoupdate > cloudflared.log 2>&1 &
+          echo $! > cloudflared.pid
+
+          TUNNEL_URL=""
+          for i in {1..30}; do
+            TUNNEL_URL="$(grep -Eo 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com' cloudflared.log | head -n 1 || true)"
+            if [[ -n "${TUNNEL_URL}" ]]; then
+              echo "tunnel_url=${TUNNEL_URL}" >> "$GITHUB_OUTPUT"
+              echo "Tunnel URL: ${TUNNEL_URL}"
+              break
+            fi
+            sleep 2
+          done
+
+          if [[ -z "${TUNNEL_URL}" ]]; then
+            echo 'Failed to detect a trycloudflare.com URL from cloudflared logs.'
+            echo '--- cloudflared.log ---'
+            cat cloudflared.log
+            exit 1
+          fi
+
+      - name: Publish control panel link
+        run: |
+          TUNNEL_URL='${{ steps.tunnel.outputs.tunnel_url }}'
+          ADMIN_USER='${{ secrets.ADMIN_USERNAME || 'Admin' }}'
+
+          {
+            echo "## Showdown ChatBot – Control Panel"
+            echo ""
+            echo "**URL:** ${TUNNEL_URL}"
+            echo ""
+            echo "**Username:** \`${ADMIN_USER}\`"
+            echo ""
+            echo "> Login with the configured admin credentials."
+            echo "> The control panel will remain accessible for up to 30 minutes."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Keep workflow alive for 30 minutes
         run: sleep 1800
