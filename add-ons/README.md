@@ -14,6 +14,7 @@ Index:
   - [Commands guide add-on](#commands-guide-add-on)
   - [HashPoke command exceptions](#hashpoke-command-exceptions)
   - [Pastebin add-on](#pastebin-add-on)
+  - [PokePaste preview add-on](#pokepaste-preview-add-on)
   - [YouTube link recognition add-on](#youtube-link-recognition-add-on)
 
 ---
@@ -145,6 +146,25 @@ Animal||Cat,Dog,Rabbit,Chicken,Cow,Pig,Sheep
 // Name of the permission required for the commands
 const PERMISSION_REQUIRED = "randadmin";
 ```
+
+## PokePaste preview add-on
+
+**Description**: This add-on watches chat messages for PokePaste links and automatically posts a formatted preview with title/author, team icons, and a click-to-export section.
+
+**Add-on file**: [pokepast-preview](./pokepast-preview.js)
+
+**Configuration**: In order to configure the add-on, change the values of these constants in the file:
+
+- `Enabled_Rooms`: List of room IDs where previews are enabled. Empty list means all rooms.
+- `Cooldown_Ms`: Cooldown in milliseconds for repeated previews of the same paste in the same room.
+- `Cache_TTL_Ms`: Cache duration in milliseconds for fetched Pokepaste data.
+- `Show_Notes`: Whether notes from Pokepaste should be displayed in the preview.
+
+**Behavior notes**:
+
+- The add-on fetches `/json` first and falls back to `/raw` when needed.
+- It escapes rendered content to avoid HTML injection.
+- If a full HTML preview cannot be rendered, it sends a plain-text fallback message.
 
 ## YouTube link recognition add-on
 
