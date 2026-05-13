@@ -254,8 +254,17 @@ function createManagedBot(App, botId) {
 	FileSystem.writeFileSync(keyFile, key);
 	const db = new CryptoDataBase(configFile, key);
 	db.set(config);
-	db.write();
-	return botId;
+
+	return new Promise((resolve, reject) => {
+		db.write(err => {
+			if (err) {
+				reject(err);
+				return;
+			}
+
+			resolve(botId);
+		});
+	});
 }
 
 function validateAddonFile(file) {
