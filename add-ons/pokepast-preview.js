@@ -2,32 +2,33 @@
 // Install as an Add-on
 // ----------------------
 // Configuration constants:
-// - Enabled_Rooms: List of room IDs where the feature is enabled. Empty = all rooms.
-// - Cooldown_Ms: Anti-spam cooldown for the same PokePaste in the same room.
-// - Cache_TTL_Ms: How long to cache fetched PokePaste responses.
-// - Show_Notes: Whether to include notes in the preview.
+// - ENABLED_ROOMS: List of room IDs where the feature is enabled. Empty = all rooms.
+// - COOLDOWN_MS: Anti-spam cooldown for the same PokePaste in the same room.
+// - CACHE_TTL_MS: How long to cache fetched PokePaste responses.
+// - SHOW_NOTES: Whether to include notes in the preview.
 
 'use strict';
 
 const HTTPS = require('https');
 const Text = Tools('text');
 
-const Enabled_Rooms = [];
-const Cooldown_Ms = 30 * 1000;
-const Cache_TTL_Ms = 5 * 60 * 1000;
-const Show_Notes = true;
+const ENABLED_ROOMS = [];
+const COOLDOWN_MS = 30 * 1000;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+const SHOW_NOTES = true;
 
-const Max_Paste_Chars = 40 * 1000;
-const Max_Title_Chars = 120;
-const Max_Author_Chars = 80;
-const Max_Notes_Chars = 400;
-const Max_Plain_Text_Chars = 300;
+const MAX_PASTE_CHARS = 40 * 1000;
+const MAX_TITLE_CHARS = 120;
+const MAX_AUTHOR_CHARS = 80;
+const MAX_NOTES_CHARS = 400;
+const MAX_PLAIN_TEXT_CHARS = 300;
+const FETCH_BUFFER_CHARS = 2000;
 
-const PokePaste_Link_Regex = /https:\/\/pokepast\.es\/([a-f0-9]{6,32})(?:\/(?:raw|json))?/ig;
+const POKEPASTE_LINK_REGEX = /https:\/\/pokepast\.es\/([a-f0-9]{16})(?:\/(?:raw|json))?/i;
 
 function isEnabledRoom(room) {
-	if (!Enabled_Rooms.length) return true;
-	return Enabled_Rooms.includes(Text.toId(room));
+	if (!ENABLED_ROOMS.length) return true;
+	return ENABLED_ROOMS.includes(Text.toId(room));
 }
 
 function getTeamTools(App) {
@@ -38,36 +39,40 @@ function getTeamTools(App) {
 
 function getPokePasteId(message) {
 	if (!message) return null;
-	PokePaste_Link_Regex.lastIndex = 0;
-	const match = PokePaste_Link_Regex.exec(message);
+	const match = POKEPASTE_LINK_REGEX.exec(message);
 	if (!match) return null;
-	return (match[1] + "").toLowerCase();
+	return match[1].toLowerCase();
 }
 
 function toLimitedText(value, maxLength) {
 	let text = value;
 	if (typeof text !== 'string') text = '';
 	if (text.length <= maxLength) return text;
-	return text.substr(0, maxLength) + '...';
+	return text.slice(0, maxLength) + '...';
 }
 
 function requestText(url, callback) {
 	HTTPS.get(url, response => {
 		let data = '';
+		let tooLarge = false;
 		response.on('data', chunk => {
+			if (tooLarge) return;
 			data += chunk;
-			if (data.length > Max_Paste_Chars + 2000) {
-				response.destroy(new Error("Response too large"));
+			if (data.length > MAX_PASTE_CHARS + FETCH_BUFFER_CHARS) {
+				tooLarge = true;
 			}
 		});
 		response.on('end', () => {
+			if (tooLarge) {
+				return callback(null, new Error("Response too large"));
+			}
 			if (response.statusCode !== 200) {
 				if (response.statusCode === 404) {
 					return callback(null, new Error("404 - Not found"));
 				}
 				return callback(null, new Error("" + response.statusCode));
 			}
-			if (data.length > Max_Paste_Chars) {
+			if (data.length > MAX_PASTE_CHARS) {
 				return callback(null, new Error("Paste exceeds the maximum supported length"));
 			}
 			return callback(data);
@@ -100,9 +105,9 @@ function fetchPokePasteJSON(id, callback) {
 
 		return callback({
 			paste: parsed.paste,
-			title: toLimitedText(parsed.title || "", Max_Title_Chars),
-			author: toLimitedText(parsed.author || "", Max_Author_Chars),
-			notes: toLimitedText(parsed.notes || "", Max_Notes_Chars),
+			title: toLimitedText(parsed.title || "", MAX_TITLE_CHARS),
+			author: toLimitedText(parsed.author || "", MAX_AUTHOR_CHARS),
+			notes: toLimitedText(parsed.notes || "", MAX_NOTES_CHARS),
 			link: "https://pokepast.es/" + id,
 		});
 	});
@@ -131,7 +136,10 @@ function fetchPokePaste(id, callback) {
 		}
 		fetchPokePasteRaw(id, (rawData, rawErr) => {
 			if (rawErr) {
-				return callback(null, new Error("Failed to fetch Pokepaste: " + (jsonErr ? jsonErr.message : rawErr.message)));
+				const errorMessages = [];
+				if (jsonErr && jsonErr.message) errorMessages.push("JSON: " + jsonErr.message);
+				if (rawErr.message) errorMessages.push("RAW: " + rawErr.message);
+				return callback(null, new Error("Failed to fetch Pokepaste: " + errorMessages.join(" | ")));
 			}
 			return callback(rawData);
 		});
@@ -180,7 +188,7 @@ function getSafeTeamName(pasteData, teamPreview) {
 	if (!teamPreview || !teamPreview.exportedTeam) return "Pokepast Team";
 	const firstLine = (teamPreview.exportedTeam.split('\n')[0] || '').trim();
 	if (!firstLine) return "Pokepast Team";
-	return toLimitedText(firstLine, Max_Title_Chars);
+	return toLimitedText(firstLine, MAX_TITLE_CHARS);
 }
 
 function buildHtml(byName, pasteData, teamPreview) {
@@ -198,7 +206,7 @@ function buildHtml(byName, pasteData, teamPreview) {
 	html += '<p style="margin:0 0 6px 0;"><a href="' + safeLink + '" target="_blank"><b>' + safeTitle + '</b></a></p>';
 	html += '<div style="padding:6px;border:1px solid #5f80c8;border-radius:4px;background:#23345e;">' + teamPreview.icons + '</div>';
 	html += '<details style="margin-top:6px;"><summary>(Click to export)</summary><pre style="margin-top:4px;">' + escapedExport + '</pre></details>';
-	if (Show_Notes && pasteData.notes) {
+	if (SHOW_NOTES && pasteData.notes) {
 		html += '<p style="margin:6px 0 0 0;"><b>Notes:</b> ' + Text.escapeHTML(pasteData.notes) + '</p>';
 	}
 	html += '</div>';
@@ -209,12 +217,13 @@ function buildPlainText(byName, pasteData) {
 	const title = getSafeTeamName(pasteData, null);
 	const author = pasteData.author || "Unknown";
 	const txt = "PokePaste from " + byName + ": " + title + " (Author: " + author + ") - " + pasteData.link;
-	return Text.stripCommands(toLimitedText(txt, Max_Plain_Text_Chars));
+	return Text.stripCommands(toLimitedText(txt, MAX_PLAIN_TEXT_CHARS));
 }
 
 exports.setup = function (App) {
 	const roomCooldowns = new Map();
 	const cache = new Map();
+	const botId = Text.toId(App.bot.getBotNick() || "");
 
 	function getCached(id) {
 		const entry = cache.get(id);
@@ -228,7 +237,7 @@ exports.setup = function (App) {
 
 	function setCache(id, data) {
 		cache.set(id, {
-			expires: Date.now() + Cache_TTL_Ms,
+			expires: Date.now() + CACHE_TTL_MS,
 			data: data,
 		});
 	}
@@ -237,7 +246,7 @@ exports.setup = function (App) {
 		if (!isEnabledRoom(room)) return;
 
 		const user = Text.parseUserIdent(by);
-		if (Text.toId(user.name || "") === Text.toId(App.bot.getBotNick() || "")) return;
+		if (Text.toId(user.name || "") === botId) return;
 
 		const id = getPokePasteId(message);
 		if (!id) return;
@@ -246,7 +255,7 @@ exports.setup = function (App) {
 		const cooldownKey = roomId + "|" + id;
 		const now = Date.now();
 		const prev = roomCooldowns.get(cooldownKey) || 0;
-		if ((now - prev) < Cooldown_Ms) return;
+		if ((now - prev) < COOLDOWN_MS) return;
 		roomCooldowns.set(cooldownKey, now);
 
 		const sendPreview = pasteData => {

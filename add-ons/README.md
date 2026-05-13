@@ -155,10 +155,10 @@ const PERMISSION_REQUIRED = "randadmin";
 
 **Configuration**: In order to configure the add-on, change the values of these constants in the file:
 
-- `Enabled_Rooms`: List of room IDs where previews are enabled. Empty list means all rooms.
-- `Cooldown_Ms`: Cooldown in milliseconds for repeated previews of the same paste in the same room.
-- `Cache_TTL_Ms`: Cache duration in milliseconds for fetched Pokepaste data.
-- `Show_Notes`: Whether notes from Pokepaste should be displayed in the preview.
+- `ENABLED_ROOMS`: List of room IDs where previews are enabled. Empty list means all rooms.
+- `COOLDOWN_MS`: Cooldown in milliseconds for repeated previews of the same paste in the same room.
+- `CACHE_TTL_MS`: Cache duration in milliseconds for fetched Pokepaste data.
+- `SHOW_NOTES`: Whether notes from Pokepaste should be displayed in the preview.
 
 **Behavior notes**:
 
