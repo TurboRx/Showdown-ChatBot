@@ -122,7 +122,12 @@ npm start
 
 Configure your bot using the control panel. You can use the [Basic Configuration Guide](https://github.com/AgustinSRG/Showdown-ChatBot/wiki/Basic-Configuration-Guide) as help.
 
-If you want to stop your bot, use `Ctrl + C` or kill the process by other way.
+If you want to stop your bot, use `Ctrl + C` in the terminal where it is running. Alternatively, you can stop it by sending a signal to the process:
+
+- **Linux / macOS**: Find the process ID with `ps aux | grep showdown-chatbot` (or `ps aux | grep node`), then run `kill <PID>`. For a forced stop, use `kill -9 <PID>`.
+- **Windows**: Open Task Manager (`Ctrl + Shift + Esc`), find the `node.exe` process, and end it. Or from the command prompt: `taskkill /IM node.exe /F`.
+
+> **Note**: Git commands are for version control and cannot start or stop processes. There is no git command to stop the bot.
 
 ## Useful Documentation
 
