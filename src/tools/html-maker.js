@@ -17,8 +17,7 @@ exports.wrapHTML = function (body, title) {
 	let html = "<!DOCTYPE html><html>";
 
 	html += "<head>";
-
-	html += "<html>";
+	html += '<meta name="viewport" content="width=device-width, initial-scale=1" />';
 
 	if (title) {
 		html += "<title>" + title + "</title>";
@@ -51,6 +50,7 @@ exports.generate = function (body, loginData, menu, options) {
 	buf += "<head>";
 	buf +=
 		'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
+	buf += '<meta name="viewport" content="width=device-width, initial-scale=1" />';
 
 	buf += '<link rel="stylesheet" href="/static/style.css" />';
 	if (options.styles) {

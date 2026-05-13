@@ -287,6 +287,7 @@ body.dark {
 body {
 	background-color: var(--theme-background);
 	color: var(--theme-text-color);
+	margin: 0;
 }
 
 a {
@@ -312,6 +313,7 @@ p {
 
 .maindiv {
 	width: 90%;
+	max-width: 1100px;
 	background-color: var(--theme-main-div-background);
 	margin-bottom: 10px;
 	border: 1px solid var(--theme-main-div-border-color);
@@ -356,6 +358,7 @@ p {
 	color: var(--theme-menu-option-color-base);
 	text-decoration: none;
 	padding: 8px;
+	display: inline-block;
 }
 
 .menu-option:hover {
@@ -369,6 +372,7 @@ p {
 	font-weight: bold;
 	padding: 8px;
 	text-decoration: none;
+	display: inline-block;
 }
 
 .menu-separator {
@@ -400,6 +404,7 @@ p {
 	color: var(--theme-menu-option-color-base);
 	text-decoration: none;
 	padding: 8px;
+	display: inline-block;
 }
 
 .submenu-option:hover {
@@ -413,6 +418,7 @@ p {
 	font-weight: bold;
 	padding: 8px;
 	text-decoration: none;
+	display: inline-block;
 }
 
 .iframe-result-container iframe {
@@ -466,6 +472,7 @@ select {
 	box-shadow: var(--theme-input-box-shadow);
 	background: var(--theme-input-background);
 	color: var(--theme-input-text-color);
+	box-sizing: border-box;
 }
 
 input:not([type=submit]):not(:disabled):hover,
@@ -493,4 +500,112 @@ select:disabled {
 
 .theme-select {
 	font-size: 9pt;
+}
+
+@media (max-width: 768px) {
+	.maindiv {
+		width: 96%;
+	}
+
+	.header {
+		margin: 0;
+		padding: 12px;
+	}
+
+	.header table,
+	.header tbody,
+	.header tr,
+	.header td {
+		display: block;
+		width: 100% !important;
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	.header td {
+		padding: 6px 0;
+	}
+
+	.header td > div {
+		text-align: center;
+	}
+
+	.banner h1 {
+		margin: 0;
+		font-size: 2rem;
+	}
+
+	.menu {
+		padding: 6px;
+		overflow-wrap: anywhere;
+	}
+
+	.menu-option,
+	.menu-option:visited,
+	.menu-option:active,
+	.menu-option-selected,
+	.menu-option-selected:visited {
+		font-size: 18px;
+		padding: 4px 6px;
+	}
+
+	.menu-separator {
+		font-size: 18px;
+	}
+
+	.submenu-option,
+	.submenu-option:visited,
+	.submenu-option:active,
+	.submenu-option-selected,
+	.submenu-option-selected:visited {
+		font-size: 14px;
+		padding: 4px 6px;
+	}
+
+	.page-content {
+		padding: 12px;
+		overflow-x: hidden;
+	}
+
+	.page-content table {
+		width: 100%;
+	}
+
+	.page-content table tr {
+		display: block;
+		margin-bottom: 8px;
+	}
+
+	.page-content table td {
+		display: block;
+		width: 100% !important;
+		padding: 4px 0;
+		white-space: normal !important;
+	}
+
+	.page-content input:not([type=submit]),
+	.page-content textarea,
+	.page-content select {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	.page-content button,
+	.page-content input[type=submit] {
+		width: 100%;
+		max-width: 100%;
+		margin: 4px 0;
+		box-sizing: border-box;
+	}
+
+	.copyright {
+		padding: 12px;
+	}
+
+	.theme-select {
+		display: block;
+		width: 100%;
+		max-width: 12rem;
+		margin: 8px auto 0;
+	}
 }
