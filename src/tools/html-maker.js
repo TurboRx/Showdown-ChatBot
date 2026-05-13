@@ -14,7 +14,7 @@ const Util = require("util");
  * @returns The final HTML
  */
 exports.wrapHTML = function (body, title) {
-	let html = "<!DOCTYPE html><html>";
+	let html = '<!DOCTYPE html><html lang="en">';
 
 	html += "<head>";
 	html += '<meta name="viewport" content="width=device-width, initial-scale=1" />';
