@@ -35,11 +35,27 @@ jobs:
           curl -fsSL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
           sudo dpkg -i cloudflared.deb
 
+      - name: Resolve admin credentials
+        id: creds
+        run: |
+          ADMIN_USER="${{ secrets.ADMIN_USERNAME }}"
+          ADMIN_PASS="${{ secrets.ADMIN_PASSWORD }}"
+          if [[ -z "${ADMIN_USER}" ]]; then
+            ADMIN_USER="Admin"
+          fi
+          if [[ -z "${ADMIN_PASS}" ]]; then
+            ADMIN_PASS="$(openssl rand -hex 16)"
+          fi
+          echo "admin_user=${ADMIN_USER}" >> "$GITHUB_OUTPUT"
+          # Mask the password so it never appears in plain text in logs
+          echo "::add-mask::${ADMIN_PASS}"
+          echo "admin_pass=${ADMIN_PASS}" >> "$GITHUB_OUTPUT"
+
       - name: Start control panel and Cloudflare Tunnel
         id: tunnel
         env:
-          DEFAULT_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME || 'Admin' }}
-          DEFAULT_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'admin' }}
+          DEFAULT_ADMIN_USERNAME: ${{ steps.creds.outputs.admin_user }}
+          DEFAULT_ADMIN_PASSWORD: ${{ steps.creds.outputs.admin_pass }}
         run: |
           set -euo pipefail
 
@@ -93,7 +109,7 @@ jobs:
       - name: Publish control panel link
         run: |
           TUNNEL_URL='${{ steps.tunnel.outputs.tunnel_url }}'
-          ADMIN_USER='${{ secrets.ADMIN_USERNAME || 'Admin' }}'
+          ADMIN_USER='${{ steps.creds.outputs.admin_user }}'
 
           {
             echo "## Showdown ChatBot – Control Panel"
@@ -102,7 +118,7 @@ jobs:
             echo ""
             echo "**Username:** \`${ADMIN_USER}\`"
             echo ""
-            echo "> Login with the configured admin credentials."
+            echo "> Password: use the \`ADMIN_PASSWORD\` secret value (or check the masked value set during the *Resolve admin credentials* step)."
             echo "> The control panel will remain accessible for up to 30 minutes."
           } >> "$GITHUB_STEP_SUMMARY"
 
