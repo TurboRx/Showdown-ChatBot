@@ -233,7 +233,7 @@ function buildHtml(App, byName, pasteData, teamPreview) {
 	html += '<div style="padding:6px;border:1px solid #5f80c8;border-radius:4px;background:#23345e;">' + teamPreview.icons + '</div>';
 	html += '<details style="margin-top:6px;"><summary>(Click to export)</summary>';
 	html += '<div style="margin-top:4px;padding:6px;border:1px solid #44516f;border-radius:4px;background:#111827;color:#f8fafc;">';
-	html += '<copytext value="' + copyValue + '">Copy</copytext>';
+	html += '<p style="margin:0 0 6px 0;"><copytext value="' + copyValue + '">Copy</copytext></p>';
 	html += '<textarea readonly style="box-sizing:border-box;width:100%;min-height:240px;margin:0;padding:6px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#f8fafc;white-space:pre;overflow:auto;font-family:monospace;">' + escapedExport + '</textarea>';
 	html += '</div></details>';
 	if (SHOW_NOTES && pasteData.notes) {
