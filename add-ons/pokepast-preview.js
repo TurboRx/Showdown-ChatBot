@@ -204,6 +204,10 @@ function buildTeamPreview(App, pasteText) {
 	};
 }
 
+function escapeCopyButtonValue(value) {
+	return Text.escapeHTML(value).replace(/\r?\n/g, '&#10;');
+}
+
 function getSafeTeamName(pasteData, teamPreview) {
 	if (pasteData.title) return pasteData.title;
 	if (!teamPreview || !teamPreview.exportedTeam) return "Pokepast Team";
@@ -220,6 +224,7 @@ function buildHtml(App, byName, pasteData, teamPreview) {
 	const safeAuthor = Text.escapeHTML(pasteData.author || "Unknown");
 	const safeLink = Text.escapeHTML(pasteData.link);
 	const escapedExport = Text.escapeHTML(teamPreview.exportedTeam);
+	const copyValue = escapeCopyButtonValue(teamPreview.exportedTeam);
 
 	let html = '';
 	html += '<div style="margin:4px 0;padding:8px 10px;background:#1e2b4f;border:1px solid #4f7bcf;border-radius:6px;">';
@@ -228,7 +233,7 @@ function buildHtml(App, byName, pasteData, teamPreview) {
 	html += '<div style="padding:6px;border:1px solid #5f80c8;border-radius:4px;background:#23345e;">' + teamPreview.icons + '</div>';
 	html += '<details style="margin-top:6px;"><summary>(Click to export)</summary>';
 	html += '<div style="margin-top:4px;padding:6px;border:1px solid #44516f;border-radius:4px;background:#111827;color:#f8fafc;">';
-	html += '<copytext class="button" value="' + escapedExport + '" style="margin-bottom:4px;">Copy</copytext>';
+	html += '<button class="button" name="copyText" value="' + copyValue + '" style="margin-bottom:4px;">Copy</button>';
 	html += '<textarea readonly style="box-sizing:border-box;width:100%;min-height:240px;margin:0;padding:6px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#f8fafc;white-space:pre;overflow:auto;font-family:monospace;">' + escapedExport + '</textarea>';
 	html += '</div></details>';
 	if (SHOW_NOTES && pasteData.notes) {
