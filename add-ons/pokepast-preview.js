@@ -205,7 +205,7 @@ function buildTeamPreview(App, pasteText) {
 }
 
 function escapeCopyButtonValue(value) {
-	return Text.escapeHTML(value).replace(/\r?\n/g, '&#10;');
+	return Text.escapeHTML(value).replace(/\r?\n/g, '&#13;&#10;');
 }
 
 function getSafeTeamName(pasteData, teamPreview) {
@@ -233,10 +233,7 @@ function buildHtml(App, byName, pasteData, teamPreview) {
 	html += '<div style="padding:6px;border:1px solid #5f80c8;border-radius:4px;background:#23345e;">' + teamPreview.icons + '</div>';
 	html += '<details style="margin-top:6px;"><summary>(Click to export)</summary>';
 	html += '<div style="margin-top:4px;padding:6px;border:1px solid #44516f;border-radius:4px;background:#111827;color:#f8fafc;">';
-	html += '<span style="display:inline-block;position:relative;width:54px;height:24px;margin-bottom:4px;vertical-align:middle;overflow:hidden;">';
-	html += '<copytext class="button" value="' + copyValue + '">Copy</copytext>';
-	html += '<span style="position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;box-sizing:border-box;border:1px solid #aaa;border-radius:4px;background:#f8f8f8;color:#111;pointer-events:none;">Copy</span>';
-	html += '</span>';
+	html += '<copytext value="' + copyValue + '">Copy</copytext>';
 	html += '<textarea readonly style="box-sizing:border-box;width:100%;min-height:240px;margin:0;padding:6px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#f8fafc;white-space:pre;overflow:auto;font-family:monospace;">' + escapedExport + '</textarea>';
 	html += '</div></details>';
 	if (SHOW_NOTES && pasteData.notes) {
