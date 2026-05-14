@@ -10,6 +10,7 @@
 'use strict';
 
 const HTTPS = require('https');
+const Chat = Tools('chat');
 const Text = Tools('text');
 
 const ENABLED_ROOMS = [];
@@ -29,6 +30,27 @@ const POKEPASTE_LINK_REGEX = /https:\/\/pokepast\.es\/([a-f0-9]{16})(?:\/(?:raw|
 function isEnabledRoom(room) {
 	if (!ENABLED_ROOMS.length) return true;
 	return ENABLED_ROOMS.includes(Text.toId(room));
+}
+
+
+function getUsernameColor(App, name) {
+	const modules = App.modules || {};
+	const colorModules = [modules.profiles, modules.misc];
+	for (let i = 0; i < colorModules.length; i++) {
+		const mod = colorModules[i];
+		if (!mod || !mod.system || typeof mod.system.getCustomColor !== 'function') continue;
+		const customColor = mod.system.getCustomColor(name);
+		if (customColor) return customColor;
+	}
+	if (Chat.usernameColor) return Chat.usernameColor(name);
+	return '';
+}
+
+function getUsernameHtml(App, name) {
+	const safeName = Text.escapeHTML(name);
+	const color = getUsernameColor(App, name);
+	if (!color) return safeName;
+	return '<span class="username" style="color:' + Text.escapeHTML(color) + ';">' + safeName + '</span>';
 }
 
 function getTeamTools(App) {
@@ -191,21 +213,25 @@ function getSafeTeamName(pasteData, teamPreview) {
 	return toLimitedText(firstLine, MAX_TITLE_CHARS);
 }
 
-function buildHtml(byName, pasteData, teamPreview) {
+function buildHtml(App, byName, pasteData, teamPreview) {
 	if (!teamPreview) return '';
 
-	const safeBy = Text.escapeHTML(byName);
+	const safeBy = getUsernameHtml(App, byName);
 	const safeTitle = Text.escapeHTML(getSafeTeamName(pasteData, teamPreview));
 	const safeAuthor = Text.escapeHTML(pasteData.author || "Unknown");
 	const safeLink = Text.escapeHTML(pasteData.link);
-	const escapedExport = Text.escapeHTML(teamPreview.exportedTeam).replace(/\n/g, "<br>");
+	const escapedExport = Text.escapeHTML(teamPreview.exportedTeam);
 
 	let html = '';
 	html += '<div style="margin:4px 0;padding:8px 10px;background:#1e2b4f;border:1px solid #4f7bcf;border-radius:6px;">';
 	html += '<p style="margin:0 0 6px 0;"><b>Team from ' + safeBy + '</b> (Author: ' + safeAuthor + ')</p>';
 	html += '<p style="margin:0 0 6px 0;"><a href="' + safeLink + '" target="_blank"><b>' + safeTitle + '</b></a></p>';
 	html += '<div style="padding:6px;border:1px solid #5f80c8;border-radius:4px;background:#23345e;">' + teamPreview.icons + '</div>';
-	html += '<details style="margin-top:6px;"><summary>(Click to export)</summary><pre style="margin-top:4px;">' + escapedExport + '</pre></details>';
+	html += '<details style="margin-top:6px;"><summary>(Click to export)</summary>';
+	html += '<div style="margin-top:4px;padding:6px;border:1px solid #44516f;border-radius:4px;background:#111827;color:#f8fafc;">';
+	html += '<button class="button" name="copy" value="' + escapedExport + '" style="margin-bottom:4px;">(Copy)</button>';
+	html += '<pre style="margin:0;white-space:pre-wrap;overflow-x:auto;color:#f8fafc;">' + escapedExport + '</pre>';
+	html += '</div></details>';
 	if (SHOW_NOTES && pasteData.notes) {
 		html += '<p style="margin:6px 0 0 0;"><b>Notes:</b> ' + Text.escapeHTML(pasteData.notes) + '</p>';
 	}
@@ -261,7 +287,7 @@ exports.setup = function (App) {
 		const sendPreview = pasteData => {
 			const teamPreview = buildTeamPreview(App, pasteData.paste);
 			const plainText = buildPlainText(user.name, pasteData);
-			const html = buildHtml(user.name, pasteData, teamPreview);
+			const html = buildHtml(App, user.name, pasteData, teamPreview);
 			if (!html) {
 				return App.bot.sendTo(room, plainText);
 			}
