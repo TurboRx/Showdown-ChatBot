@@ -32,7 +32,6 @@ function isEnabledRoom(room) {
 	return ENABLED_ROOMS.includes(Text.toId(room));
 }
 
-
 function getUsernameColor(App, name) {
 	const modules = App.modules || {};
 	const colorModules = [modules.profiles, modules.misc];
@@ -229,8 +228,8 @@ function buildHtml(App, byName, pasteData, teamPreview) {
 	html += '<div style="padding:6px;border:1px solid #5f80c8;border-radius:4px;background:#23345e;">' + teamPreview.icons + '</div>';
 	html += '<details style="margin-top:6px;"><summary>(Click to export)</summary>';
 	html += '<div style="margin-top:4px;padding:6px;border:1px solid #44516f;border-radius:4px;background:#111827;color:#f8fafc;">';
-	html += '<button class="button" name="copy" value="' + escapedExport + '" style="margin-bottom:4px;">(Copy)</button>';
-	html += '<pre style="margin:0;white-space:pre-wrap;overflow-x:auto;color:#f8fafc;">' + escapedExport + '</pre>';
+	html += '<button class="button" type="button" onclick="var t=this.nextElementSibling;t.focus();t.select();document.execCommand(\'copy\');this.textContent=\'Copied\';" style="margin-bottom:4px;">Copy</button>';
+	html += '<textarea readonly style="box-sizing:border-box;width:100%;min-height:240px;margin:0;padding:6px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#f8fafc;white-space:pre;overflow:auto;font-family:monospace;">' + escapedExport + '</textarea>';
 	html += '</div></details>';
 	if (SHOW_NOTES && pasteData.notes) {
 		html += '<p style="margin:6px 0 0 0;"><b>Notes:</b> ' + Text.escapeHTML(pasteData.notes) + '</p>';
