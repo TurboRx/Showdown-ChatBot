@@ -199,13 +199,10 @@ function buildTeamPreview(App, pasteText) {
 	}
 
 	return {
+		packedTeam: packed,
 		exportedTeam: exported,
 		icons: icons,
 	};
-}
-
-function escapeCopyButtonValue(value) {
-	return Text.escapeHTML(value).replace(/\r?\n/g, '&#13;&#10;');
 }
 
 function getSafeTeamName(pasteData, teamPreview) {
@@ -224,7 +221,7 @@ function buildHtml(App, byName, pasteData, teamPreview) {
 	const safeAuthor = Text.escapeHTML(pasteData.author || "Unknown");
 	const safeLink = Text.escapeHTML(pasteData.link);
 	const escapedExport = Text.escapeHTML(teamPreview.exportedTeam);
-	const copyValue = escapeCopyButtonValue(teamPreview.exportedTeam);
+	const copyValue = Text.escapeHTML(teamPreview.packedTeam);
 
 	let html = '';
 	html += '<div style="margin:4px 0;padding:8px 10px;background:#1e2b4f;border:1px solid #4f7bcf;border-radius:6px;">';
